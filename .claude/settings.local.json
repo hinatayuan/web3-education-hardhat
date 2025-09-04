@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx hardhat:*)",
+      "Bash(node:*)",
+      "Bash(nvm use:*)",
+      "Bash(npm test)",
+      "Bash(npm run compile:*)",
+      "Read(/Users/liuweiyuan/Documents/front-end/yideng33期/web3-education-frontend/src/config/**)",
+      "Read(/Users/liuweiyuan/Documents/front-end/yideng33期/web3-education-frontend/**)",
+      "Read(/Users/liuweiyuan/Documents/front-end/yideng33期/web3-education-frontend/src/components/**)",
+      "Read(/Users/liuweiyuan/Documents/front-end/yideng33期/web3-education-frontend/src/hooks/**)",
+      "Bash(npm run deploy:local:*)",
+      "Bash(kill:*)",
+      "Bash(exit)",
+      "Bash(tree:*)",
+      "Bash(rm:*)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

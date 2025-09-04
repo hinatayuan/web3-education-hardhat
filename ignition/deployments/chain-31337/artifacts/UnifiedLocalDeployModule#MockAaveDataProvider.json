@@ -1,0 +1,141 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "MockAaveDataProvider",
+  "sourceName": "contracts/mocks/MockContracts.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_aUsdtToken",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "aUsdtToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        }
+      ],
+      "name": "getReserveData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "unbacked",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accruedToTreasuryScaled",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalAToken",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalStableDebt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalVariableDebt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "liquidityRate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "variableBorrowRate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stableBorrowRate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "averageStableBorrowRate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "liquidityIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "variableBorrowIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint40",
+          "name": "lastUpdateTimestamp",
+          "type": "uint40"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        }
+      ],
+      "name": "getReserveTokensAddresses",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "aTokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "stableDebtTokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "variableDebtTokenAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608034606f57601f6101e638819003918201601f19168301916001600160401b03831184841017607357808492602094604052833981010312606f57516001600160a01b03811690819003606f575f80546001600160a01b03191691909117905560405161015e90816100888239f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe6080806040526004361015610012575f80fd5b5f3560e01c90816335ea6a75146100ab57508063b9485f3a146100845763d2493b6c1461003d575f80fd5b34610080576020366003190112610080576004356001600160a01b0381160361008057606060018060a01b035f54166040519081525f60208201525f6040820152f35b5f80fd5b34610080575f366003190112610080575f546040516001600160a01b039091168152602090f35b34610080576020366003190112610080576004356001600160a01b0381160361008057805f61018092525f60208201525f60408201525f60608201525f60808201526a295be96e6406697200000060a08201525f60c08201525f60e08201525f6101008201525f6101208201525f6101408201525f610160820152f3fea2646970667358221220bc2fa6d5c343b3e95157c4cf9eaf0ac43da456917d5ea54cc66f055861ebf02b64736f6c634300081c0033",
+  "deployedBytecode": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816335ea6a75146100ab57508063b9485f3a146100845763d2493b6c1461003d575f80fd5b34610080576020366003190112610080576004356001600160a01b0381160361008057606060018060a01b035f54166040519081525f60208201525f6040820152f35b5f80fd5b34610080575f366003190112610080575f546040516001600160a01b039091168152602090f35b34610080576020366003190112610080576004356001600160a01b0381160361008057805f61018092525f60208201525f60408201525f60608201525f60808201526a295be96e6406697200000060a08201525f60c08201525f60e08201525f6101008201525f6101208201525f6101408201525f610160820152f3fea2646970667358221220bc2fa6d5c343b3e95157c4cf9eaf0ac43da456917d5ea54cc66f055861ebf02b64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/mocks/MockContracts.sol",
+  "buildInfoId": "solc-0_8_28-902b97e54a9831a1a09d5fd485d7386ff306c533"
+}

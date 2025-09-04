@@ -1,0 +1,51 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "MockAavePoolProvider",
+  "sourceName": "contracts/mocks/MockContracts.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pool",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "getPool",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608034606e57601f61013538819003918201601f19168301916001600160401b03831184841017607257808492602094604052833981010312606e57516001600160a01b03811690819003606e575f80546001600160a01b03191691909117905560405160ae90816100878239f35b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe60808060405260043610156011575f80fd5b5f3560e01c908163026b1d5f14605857506316f0115b14602f575f80fd5b346054575f3660031901126054575f546040516001600160a01b039091168152602090f35b5f80fd5b346054575f3660031901126054575f546001600160a01b03168152602090f3fea2646970667358221220203db6194c4a451b90d2359ed10ed96646f940274c851341a7fcd892aa2ee2af64736f6c634300081c0033",
+  "deployedBytecode": "0x60808060405260043610156011575f80fd5b5f3560e01c908163026b1d5f14605857506316f0115b14602f575f80fd5b346054575f3660031901126054575f546040516001600160a01b039091168152602090f35b5f80fd5b346054575f3660031901126054575f546001600160a01b03168152602090f3fea2646970667358221220203db6194c4a451b90d2359ed10ed96646f940274c851341a7fcd892aa2ee2af64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/mocks/MockContracts.sol",
+  "buildInfoId": "solc-0_8_28-902b97e54a9831a1a09d5fd485d7386ff306c533"
+}

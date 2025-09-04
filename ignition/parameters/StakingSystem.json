@@ -1,0 +1,9 @@
+{
+  "StakingSystemModule": {
+    "ydTokenAddress": "YOUR_YD_TOKEN_ADDRESS_HERE",
+    "usdtTokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "uniswapRouterAddress": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "aavePoolProviderAddress": "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e",
+    "initialOwner": "YOUR_WALLET_ADDRESS"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "MockUniswapV3Quoter",
+  "sourceName": "contracts/mocks/MockContracts.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "EXCHANGE_RATE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "tokenIn",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenOut",
+          "type": "address"
+        },
+        {
+          "internalType": "uint24",
+          "name": "fee",
+          "type": "uint24"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint160",
+          "name": "sqrtPriceLimitX96",
+          "type": "uint160"
+        }
+      ],
+      "name": "quoteExactInputSingle",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60808060405234601557610123908161001a8239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816314a8bd0d1460ab575063f7729d4314602f575f80fd5b3460a75760a036600319011260a757604460c3565b50604b60d8565b5060443562ffffff81160360a7576064356084356001600160a01b0381160360a757610bb8810290808204610bb8149015171560935760209064e8d4a5100060405191048152f35b634e487b7160e01b5f52601160045260245ffd5b5f80fd5b3460a7575f36600319011260a75780610bb860209252f35b600435906001600160a01b038216820360a757565b602435906001600160a01b038216820360a75756fea2646970667358221220d4a8041278ad0ebcfb3f72dde1ae00718e51d8e67ec0c6a8a16e9c24e0a5fb7064736f6c634300081c0033",
+  "deployedBytecode": "0x60808060405260043610156011575f80fd5b5f3560e01c90816314a8bd0d1460ab575063f7729d4314602f575f80fd5b3460a75760a036600319011260a757604460c3565b50604b60d8565b5060443562ffffff81160360a7576064356084356001600160a01b0381160360a757610bb8810290808204610bb8149015171560935760209064e8d4a5100060405191048152f35b634e487b7160e01b5f52601160045260245ffd5b5f80fd5b3460a7575f36600319011260a75780610bb860209252f35b600435906001600160a01b038216820360a757565b602435906001600160a01b038216820360a75756fea2646970667358221220d4a8041278ad0ebcfb3f72dde1ae00718e51d8e67ec0c6a8a16e9c24e0a5fb7064736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/mocks/MockContracts.sol",
+  "buildInfoId": "solc-0_8_28-902b97e54a9831a1a09d5fd485d7386ff306c533"
+}
