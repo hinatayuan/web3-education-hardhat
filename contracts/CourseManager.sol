@@ -7,37 +7,51 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./YDToken.sol";
 
+/**
+ * @title CourseManager - 课程管理合约
+ * @dev 这是一个综合性的课程管理和代币兑换合约
+ * 主要功能包括：
+ * 1. 课程的创建、更新、购买和管理
+ * 2. ETH与YD代币之间的兑换功能
+ * 3. 平台手续费收取
+ * 4. 流动性储备管理
+ */
 contract CourseManager is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     
+    // YD代币合约地址
     IERC20 public immutable ydToken;
     
-    uint256 public constant FEE_RATE = 500; // 5% fee (500/10000)
-    uint256 public constant EXCHANGE_RATE = 4000; // 1 ETH = 4000 YD tokens
+    // 平台手续费率：5% (500/10000)
+    uint256 public constant FEE_RATE = 500;
+    // 兑换汇率：1 ETH = 4000 YD代币
+    uint256 public constant EXCHANGE_RATE = 4000;
     
-    // Exchange reserves
-    uint256 public ethReserve;
-    uint256 public tokenReserve;
+    // 兑换流动性储备
+    uint256 public ethReserve;    // ETH储备量
+    uint256 public tokenReserve; // YD代币储备量
     
-    // Default reserves configuration
-    uint256 public constant DEFAULT_TOKEN_RESERVE = 1000000 * 10**18; // 100万 YD tokens
+    // 默认储备配置
+    uint256 public constant DEFAULT_TOKEN_RESERVE = 1000000 * 10**18; // 100万 YD代币
     uint256 public constant DEFAULT_ETH_RESERVE = 0.05 ether; // 0.05 ETH (可兑换200个YD)
     
+    // 课程结构体
     struct Course {
-        string courseId;
-        string title;
-        string description;
-        uint256 price;
-        address creator;
-        bool isActive;
-        uint256 createdAt;
+        string courseId;    // 课程ID
+        string title;       // 课程标题
+        string description; // 课程描述
+        uint256 price;      // 课程价格（YD代币）
+        address creator;    // 课程创建者地址
+        bool isActive;      // 课程是否激活
+        uint256 createdAt;  // 创建时间戳
     }
     
-    mapping(string => Course) public courses;
-    mapping(string => mapping(address => bool)) public userCoursePurchases;
-    mapping(address => uint256) public creatorEarnings;
+    // 存储映射
+    mapping(string => Course) public courses; // 课程ID => 课程信息
+    mapping(string => mapping(address => bool)) public userCoursePurchases; // 课程ID => 用户地址 => 是否已购买
+    mapping(address => uint256) public creatorEarnings; // 创建者地址 => 收益金额
     
-    string[] public courseIds;
+    string[] public courseIds; // 所有课程ID数组
     
     event CourseCreated(
         string indexed courseId,
@@ -76,6 +90,12 @@ contract CourseManager is Ownable, ReentrancyGuard {
     event TokenReserveAdded(uint256 amount);
     event ReservesInitialized(uint256 tokenReserve, uint256 ethReserve);
     
+    /**
+     * @dev 构造函数 - 初始化课程管理合约
+     * @param _ydToken YD代币合约地址
+     * @param initialOwner 合约初始所有者地址
+     * 注意：部署时需要发送至少DEFAULT_ETH_RESERVE数量的ETH用于初始化流动性储备
+     */
     constructor(address _ydToken, address initialOwner) 
         payable
         Ownable(initialOwner)
@@ -85,13 +105,21 @@ contract CourseManager is Ownable, ReentrancyGuard {
         
         ydToken = IERC20(_ydToken);
         
-        // 初始化储备（token储备将通过initializeTokenReserve函数设置）
+        // 初始化ETH储备（token储备将通过initializeTokenReserve函数设置）
         ethReserve = DEFAULT_ETH_RESERVE;
         
         emit ReservesInitialized(0, DEFAULT_ETH_RESERVE);
     }
     
-    // Course management functions
+    // ===== 课程管理功能 =====
+    
+    /**
+     * @dev 创建新课程
+     * @param courseId 唯一的课程ID
+     * @param title 课程标题
+     * @param description 课程描述
+     * @param price 课程价格（以YD代币计价）
+     */
     function createCourse(
         string memory courseId,
         string memory title,
@@ -136,6 +164,12 @@ contract CourseManager is Ownable, ReentrancyGuard {
         emit CourseUpdated(courseId, title, description, price);
     }
     
+    /**
+     * @dev 购买课程
+     * @param courseId 要购买的课程ID
+     * 注意：用户需要预先授权足够的YD代币给此合约
+     * 平台将收取5%的手续费，剩余95%支付给课程创建者
+     */
     function purchaseCourse(string memory courseId) external nonReentrant {
         require(bytes(courses[courseId].courseId).length > 0, "Course does not exist");
         require(courses[courseId].isActive, "Course is not active");
@@ -144,22 +178,23 @@ contract CourseManager is Ownable, ReentrancyGuard {
         
         Course memory course = courses[courseId];
         
-        // Calculate fee and creator amount
-        uint256 feeAmount = (course.price * FEE_RATE) / 10000;
-        uint256 creatorAmount = course.price - feeAmount;
+        // 计算手续费和创建者收益
+        uint256 feeAmount = (course.price * FEE_RATE) / 10000;  // 5%手续费
+        uint256 creatorAmount = course.price - feeAmount;        // 95%给创建者
         
-        // Transfer to creator
+        // 向创建者支付代币
         require(
             ydToken.transferFrom(msg.sender, course.creator, creatorAmount),
             "Creator payment failed"
         );
         
-        // Fee to contract
+        // 平台手续费转入合约
         require(
             ydToken.transferFrom(msg.sender, address(this), feeAmount),
             "Fee transfer failed"
         );
         
+        // 记录用户已购买此课程
         userCoursePurchases[courseId][msg.sender] = true;
         
         emit CoursePurchased(courseId, msg.sender, course.price);
@@ -173,41 +208,55 @@ contract CourseManager is Ownable, ReentrancyGuard {
         courses[courseId].isActive = !courses[courseId].isActive;
     }
     
-    // ETH <-> YD token exchange functions
+    // ===== ETH <-> YD 代币兑换功能 =====
+    
+    /**
+     * @dev 使用ETH购买YD代币
+     * 汇率：1 ETH = 4000 YD代币
+     * 用户发送ETH到合约，合约从自己的代币储备中转移YD代币给用户
+     */
     function buyTokens() external payable nonReentrant {
         require(msg.value > 0, "Must send ETH to buy tokens");
         require(tokenReserve > 0, "Token reserve not initialized");
         
+        // 按固定汇率计算可购买的代币数量
         uint256 tokenAmount = msg.value * EXCHANGE_RATE;
         
         require(tokenAmount % 1e18 == 0, "Token amount must be divisible by 1e18");
         require(tokenReserve >= tokenAmount, "Insufficient token reserve");
         
-        // Update reserves
-        ethReserve += msg.value;
-        tokenReserve -= tokenAmount;
+        // 更新储备
+        ethReserve += msg.value;     // 增加ETH储备
+        tokenReserve -= tokenAmount; // 减少代币储备
         
-        // Transfer tokens to buyer
+        // 向购买者转移代币
         ydToken.safeTransfer(msg.sender, tokenAmount);
         
         emit TokensPurchased(msg.sender, msg.value, tokenAmount);
     }
     
+    /**
+     * @dev 出售YD代币获取ETH
+     * @param tokenAmount 要出售的YD代币数量
+     * 汇率：4000 YD代币 = 1 ETH
+     * 用户需要预先授权YD代币给此合约
+     */
     function sellTokens(uint256 tokenAmount) external nonReentrant {
         require(tokenAmount > 0, "Token amount must be greater than 0");
         require(tokenAmount % EXCHANGE_RATE == 0, "Token amount must be divisible by exchange rate");
         
+        // 按固定汇率计算可获得的ETH数量
         uint256 ethAmount = tokenAmount / EXCHANGE_RATE;
         require(ethReserve >= ethAmount, "Insufficient ETH reserve");
         
-        // Transfer tokens from seller
+        // 从卖家转移代币到合约
         ydToken.safeTransferFrom(msg.sender, address(this), tokenAmount);
         
-        // Update reserves
-        ethReserve -= ethAmount;
-        tokenReserve += tokenAmount;
+        // 更新储备
+        ethReserve -= ethAmount;      // 减少ETH储备
+        tokenReserve += tokenAmount;  // 增加代币储备
         
-        // Transfer ETH to seller
+        // 向卖家转移ETH
         payable(msg.sender).transfer(ethAmount);
         
         emit TokensSold(msg.sender, tokenAmount, ethAmount);

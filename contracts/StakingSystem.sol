@@ -7,17 +7,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
-// Uniswap V3 interfaces
+// ===== Uniswap V3 接口定义 =====
+// 用于代币交换功能（当前未使用，保留供未来扩展）
 interface ISwapRouter {
     struct ExactInputSingleParams {
-        address tokenIn;
-        address tokenOut;
-        uint24 fee;
-        address recipient;
-        uint256 deadline;
-        uint256 amountIn;
-        uint256 amountOutMinimum;
-        uint160 sqrtPriceLimitX96;
+        address tokenIn;         // 输入代币地址
+        address tokenOut;        // 输出代币地址
+        uint24 fee;              // 手续费等级
+        address recipient;       // 接收者地址
+        uint256 deadline;        // 交易截止时间
+        uint256 amountIn;        // 输入数量
+        uint256 amountOutMinimum; // 最小输出数量
+        uint160 sqrtPriceLimitX96; // 价格限制
     }
     
     function exactInputSingle(ExactInputSingleParams calldata params)
@@ -34,19 +35,22 @@ interface IQuoter {
     ) external returns (uint256 amountOut);
 }
 
-// AAVE V3 interfaces with aToken support
+// ===== AAVE V3 核心接口定义 =====
+// 用于与AAVE协议交互，实现资产存取和收益获取
 interface IPool {
+    // 向AAVE存入资产
     function supply(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
+        address asset,       // 要存入的资产地址
+        uint256 amount,      // 存入数量
+        address onBehalfOf,  // 代表存入的地址
+        uint16 referralCode  // 推荐码
     ) external;
     
+    // 从AAVE提取资产
     function withdraw(
-        address asset,
-        uint256 amount,
-        address to
+        address asset,  // 要提取的资产地址
+        uint256 amount, // 提取数量
+        address to      // 接收地址
     ) external returns (uint256);
     
     function getUserAccountData(address user)
@@ -98,46 +102,56 @@ interface IPoolDataProvider {
         );
 }
 
+/**
+ * @title StakingSystem - 质押系统合约
+ * @dev 这是一个基于AAVE协议的质押收益系统
+ * 主要功能包括：
+ * 1. 用户可以质押USDT和LINK代币
+ * 2. 质押的代币会自动存入AAVE协议获取收益
+ * 3. 用户可以随时提取本金和收益
+ * 4. 支持暂停和紧急操作
+ */
 contract StakingSystem is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
     
-    // Token addresses
-    address public immutable USDT_TOKEN;
-    address public immutable LINK_TOKEN;
+    // 支持的代币地址
+    address public immutable USDT_TOKEN; // USDT代币地址
+    address public immutable LINK_TOKEN; // LINK代币地址
     
-    // AAVE addresses
-    address public immutable AAVE_POOL_PROVIDER;
-    address public immutable AAVE_DATA_PROVIDER;
+    // AAVE协议相关地址
+    address public immutable AAVE_POOL_PROVIDER;  // AAVE池地址提供者
+    address public immutable AAVE_DATA_PROVIDER;  // AAVE数据提供者
     
-    address public aavePool;
-    address public aUsdtToken; // AAVE aUSDT token for yield tracking
-    address public aLinkToken; // AAVE aLINK token for yield tracking
+    address public aavePool;    // AAVE池合约地址
+    address public aUsdtToken;  // AAVE aUSDT代币（用于收益追踪）
+    address public aLinkToken;  // AAVE aLINK代币（用于收益追踪）
     
     
-    // User staking info with precise yield tracking
+    // USDT质押用户信息结构体
     struct UserInfo {
-        uint256 stakedAmount;           // Original USDT amount staked
-        uint256 aTokenBalance;          // aUSDT tokens received from AAVE
-        uint256 lastStakeTime;          // Last stake timestamp
-        uint256 totalRewardsClaimed;    // Total rewards claimed by user
+        uint256 stakedAmount;        // 用户原始质押USDT数量
+        uint256 aTokenBalance;       // 从AAVE获得的aUSDT代币数量
+        uint256 lastStakeTime;       // 最近一次质押时间戳
+        uint256 totalRewardsClaimed; // 用户已累计提取的收益
     }
     
-    // User LINK staking info
+    // LINK质押用户信息结构体
     struct UserLinkInfo {
-        uint256 stakedAmount;           // Original LINK amount staked
-        uint256 aTokenBalance;          // aLINK tokens received from AAVE
-        uint256 lastStakeTime;          // Last stake timestamp
-        uint256 totalRewardsClaimed;    // Total rewards claimed by user
+        uint256 stakedAmount;        // 用户原始质押LINK数量
+        uint256 aTokenBalance;       // 从AAVE获得的aLINK代币数量
+        uint256 lastStakeTime;       // 最近一次质押时间戳
+        uint256 totalRewardsClaimed; // 用户已累计提取的收益
     }
     
-    mapping(address => UserInfo) public userInfo;
-    mapping(address => UserLinkInfo) public userLinkInfo;
+    // 存储映射
+    mapping(address => UserInfo) public userInfo;         // 用户地址 => USDT质押信息
+    mapping(address => UserLinkInfo) public userLinkInfo; // 用户地址 => LINK质押信息
     
-    // System statistics
-    uint256 public totalStaked;
-    uint256 public totalRewardsPaid;
-    uint256 public totalLinkStaked;
-    uint256 public totalLinkRewardsPaid;
+    // 系统统计数据
+    uint256 public totalStaked;          // USDT总质押量
+    uint256 public totalRewardsPaid;     // USDT已支付总收益
+    uint256 public totalLinkStaked;      // LINK总质押量
+    uint256 public totalLinkRewardsPaid; // LINK已支付总收益
     
     // Events
     event Staked(address indexed user, uint256 usdtAmount, uint256 aTokenAmount);
@@ -181,8 +195,10 @@ contract StakingSystem is Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Stake USDT directly into AAVE
-     * @param usdtAmount Amount of USDT to stake
+     * @dev 质押USDT到AAVE协议获取收益
+     * @param usdtAmount 要质押的USDT数量
+     * 流程：用户USDT -> 合约 -> AAVE协议 -> 获得aUSDT代币
+     * aUSDT代币会随时间自动增值，实现收益的自动复利
      */
     function stake(uint256 usdtAmount) 
         external 
@@ -190,22 +206,22 @@ contract StakingSystem is Ownable, ReentrancyGuard, Pausable {
         whenNotPaused 
         validAmount(usdtAmount) 
     {
-        // Transfer USDT from user
+        // 从用户转移USDT到合约
         IERC20(USDT_TOKEN).safeTransferFrom(msg.sender, address(this), usdtAmount);
         
-        // Supply USDT to AAVE and get aTokens
+        // 将USDT存入AAVE并获得aToken
         uint256 aTokenBalanceBefore = IAToken(aUsdtToken).balanceOf(address(this));
         IPool(aavePool).supply(USDT_TOKEN, usdtAmount, address(this), 0);
         uint256 aTokenBalanceAfter = IAToken(aUsdtToken).balanceOf(address(this));
         uint256 aTokensReceived = aTokenBalanceAfter - aTokenBalanceBefore;
         
-        // Update user info
+        // 更新用户信息
         UserInfo storage user = userInfo[msg.sender];
-        user.stakedAmount += usdtAmount;
-        user.aTokenBalance += aTokensReceived;
-        user.lastStakeTime = block.timestamp;
+        user.stakedAmount += usdtAmount;      // 累加质押量
+        user.aTokenBalance += aTokensReceived; // 累加aToken余额
+        user.lastStakeTime = block.timestamp;  // 更新质押旰间
         
-        // Update system stats
+        // 更新系统统计
         totalStaked += usdtAmount;
         
         emit Staked(msg.sender, usdtAmount, aTokensReceived);
